@@ -11,7 +11,7 @@
         .font-serif { font-family: 'Playfair Display', serif; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex items-center justify-center">
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
 
     <div class="flex w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden">
         <div class="hidden md:block w-1/2 bg-slate-800">
@@ -25,12 +25,26 @@
                 <p class="text-sm text-slate-500">Gili Trawangan, Lombok</p>
             </div>
 
-            <h2 class="text-xl font-medium text-slate-700 mb-6">Selamat Datang Kembali</h2>
+            <h2 class="text-xl font-medium text-slate-700 mb-6 text-center md:text-left">Selamat Datang Kembali</h2>
 
-            <form action="#" method="POST" class="space-y-5">
+            @if(session('success'))
+                <div class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-4 py-3 rounded-lg mb-6 text-sm text-center">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @error('email')
+                <div class="bg-red-50 border border-red-200 text-red-500 text-sm px-4 py-3 rounded-lg mb-6 text-center">
+                    {{ $message }}
+                </div>
+            @enderror
+
+            <form action="/login" method="POST" class="space-y-5">
+                @csrf
+                
                 <div>
                     <label class="block text-sm font-medium text-slate-600 mb-1">Email</label>
-                    <input type="email" name="email" class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-slate-800 focus:border-slate-800 outline-none transition-all" placeholder="tamu@email.com" required>
+                    <input type="email" name="email" value="{{ old('email') }}" class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-slate-800 focus:border-slate-800 outline-none transition-all" placeholder="tamu@email.com" required>
                 </div>
 
                 <div>
@@ -40,7 +54,7 @@
 
                 <div class="flex items-center justify-between text-sm">
                     <label class="flex items-center text-slate-600 cursor-pointer">
-                        <input type="checkbox" class="mr-2 rounded border-slate-300 text-slate-800 focus:ring-slate-800"> Ingat saya
+                        <input type="checkbox" name="remember" class="mr-2 rounded border-slate-300 text-slate-800 focus:ring-slate-800"> Ingat saya
                     </label>
                     <a href="#" class="text-slate-500 hover:text-slate-800 transition-colors">Lupa Password?</a>
                 </div>
