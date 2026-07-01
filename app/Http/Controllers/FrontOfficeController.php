@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Reservation;
+use App\Models\Room; // Ini baris yang ditambahkan agar tidak error
 
 class FrontOfficeController extends Controller
 {
@@ -15,6 +16,7 @@ class FrontOfficeController extends Controller
         
         return view('front_office.dashboard', compact('reservations'));
     }
+
     public function verify($id)
     {
         // 1. Ambil data reservasi beserta pembayarannya
@@ -28,5 +30,36 @@ class FrontOfficeController extends Controller
 
         // 4. Kembali ke dashboard dengan pesan sukses
         return redirect('/fo/dashboard')->with('success', 'Reservasi berhasil diverifikasi!');
+    }
+
+    public function checkIn($id)
+    {
+        // Temukan reservasi
+        $reservation = Reservation::findOrFail($id);
+        
+        // Ubah status kamar menjadi 'occupied'
+        $reservation->room->update(['status' => 'occupied']);
+        
+        // Opsional: Ubah status reservasi agar tidak bisa diverifikasi lagi
+        $reservation->update(['status' => 'checked_in']);
+
+        return redirect('/fo/dashboard')->with('success', 'Tamu berhasil Check-in!');
+    }
+
+    // Fungsi untuk menampilkan halaman Status Kamar
+    public function rooms()
+    {
+        // Ambil semua data kamar urut berdasarkan nomor kamar
+        $rooms = Room::with('roomType')->orderBy('room_number', 'asc')->get();
+        return view('front_office.rooms', compact('rooms'));
+    }
+
+    // Fungsi untuk proses Check-out (Mengubah status kamar jadi kotor)
+    public function checkoutRoom($id)
+    {
+        $room = Room::findOrFail($id);
+        $room->update(['status' => 'dirty']);
+        
+        return back()->with('success', 'Kamar berhasil di-checkout dan sekarang berstatus kotor.');
     }
 }

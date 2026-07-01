@@ -19,7 +19,7 @@
         </div>
         <nav class="flex-grow p-4 space-y-2">
             <a href="/fo/dashboard" class="block py-2.5 px-4 rounded transition bg-slate-800 text-emerald-400 border-l-4 border-emerald-400">📊 Data Reservasi</a>
-            <a href="#" class="block py-2.5 px-4 rounded transition hover:bg-slate-800 text-slate-300">🛏️ Status Kamar</a>
+            <a href="/fo/rooms" class="block py-2.5 px-4 rounded transition hover:bg-slate-800 text-slate-300">🛏️ Status Kamar</a>
         </nav>
         <div class="p-4 border-t border-slate-800">
             <a href="/login" class="block py-2 text-center text-sm text-slate-400 hover:text-white transition">Logout</a>
@@ -68,18 +68,25 @@
                                 <span class="inline-block bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-medium uppercase tracking-wider">{{ $res->status }}</span>
                             </td>
                             <td class="p-4 text-center">
-                                 @if($res->status == 'pending')
-                                 <form action="/fo/verify/{{ $res->id }}" method="POST">
+                                @if($res->status == 'confirmed')
+                                <form action="/fo/room-checkin/{{ $res->id }}" method="POST">
                                       @csrf
-                                    <button type="submit" class="bg-emerald-600 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-emerald-700 transition">
-                                  Verifikasi
-                                </button>
-                                    </form>
-                                     @else
-                                      <span class="text-emerald-600 font-bold text-xs">✓ Terverifikasi</span>
+                                     <button type="submit" class="bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-blue-700 transition">
+                                           Check-in
+                                        </button>
+                                         </form>
+                                           @elseif($res->status == 'checked_in')
+                                             <span class="text-blue-600 font-bold text-xs">✓ Tamu di Kamar</span>
+                                                 @else
+                                                     <form action="/fo/verify/{{ $res->id }}" method="POST">
+                                               @csrf
+                                             <button type="submit" class="bg-emerald-600 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-emerald-700 transition">
+                                          Verifikasi
+                                        </button>
+                                        </form>
                                         @endif
-                                </td>
-                        </tr>
+                                    </td>
+                                 </tr>
                         @endforeach
                     </tbody>
                 </table>

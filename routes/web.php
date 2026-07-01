@@ -15,8 +15,9 @@ Route::get('/guest/payment/{id}', [GuestController::class, 'payment']);
 Route::post('/guest/payment/{id}', [GuestController::class, 'uploadProof']);
 Route::get('/fo/dashboard', [FrontOfficeController::class, 'index']);
 Route::post('/fo/verify/{id}', [FrontOfficeController::class, 'verify']);
-
-
+Route::post('/fo/room-checkin/{id}', [FrontOfficeController::class, 'checkIn']);
+Route::get('/fo/rooms', [FrontOfficeController::class, 'rooms']);
+Route::post('/fo/rooms/{id}/checkout', [FrontOfficeController::class, 'checkoutRoom']);
 
 Route::get('/login', function () {
     return view('auth.login');
