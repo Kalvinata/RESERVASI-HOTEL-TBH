@@ -12,70 +12,94 @@
 </head>
 <body class="bg-slate-50 min-h-screen flex">
 
-    <aside class="w-64 bg-amber-900 text-white min-h-screen flex flex-col hidden md:flex">
+    <aside class="w-64 bg-amber-900 text-white min-h-screen flex flex-col hidden md:flex flex-shrink-0">
         <div class="p-6 border-b border-amber-800">
-            <h1 class="text-xl font-semibold tracking-wider">TBH Staff</h1>
-            <p class="text-xs text-amber-400 mt-1">Panel Housekeeping</p>
+            <h1 class="text-xl font-bold tracking-wider">TBH Staff</h1>
+            <p class="text-xs text-amber-300 mt-1">Panel Housekeeping</p>
         </div>
         <nav class="flex-grow p-4 space-y-2">
-            <a href="/hk/dashboard" class="block py-2.5 px-4 rounded transition bg-amber-800 text-amber-300 border-l-4 border-amber-400">🧹 Tugas Kebersihan</a>
+            <a href="/hk/dashboard" class="block py-2.5 px-4 rounded transition bg-amber-800 text-amber-200 border-l-4 border-amber-400 font-medium">🧹 Tugas Kebersihan</a>
         </nav>
         <div class="p-4 border-t border-amber-800">
-            <a href="/login" class="block py-2 text-center text-sm text-amber-400 hover:text-white transition">Logout</a>
+            <form action="/logout" method="POST">
+                @csrf
+                <button type="submit" class="w-full text-center block py-2 text-sm text-amber-300 hover:text-white transition font-medium">
+                    Logout
+                </button>
+            </form>
         </div>
     </aside>
 
-    <main class="flex-grow p-8 max-w-7xl mx-auto">
-        <div class="flex justify-between items-center mb-8">
-            <div>
-                <h2 class="text-2xl font-semibold text-slate-800">Daftar Kamar Kotor</h2>
-                <p class="text-sm text-slate-500 mt-1">Segera bersihkan kamar agar dapat disewakan kembali</p>
-            </div>
+    <main class="flex-grow p-8 max-w-5xl mx-auto w-full">
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold text-slate-800">Daftar Kamar Kotor & Pembersihan</h2>
+            <p class="text-sm text-slate-500 mt-1 font-medium">Segera bersihkan kamar agar dapat disewakan kembali oleh sistem</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @forelse($rooms as $room)
-            <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex flex-col justify-between hover:shadow-md transition">
-                <div>
-                    <div class="flex justify-between items-start mb-4">
-                        <h3 class="text-2xl font-bold text-slate-800">Kamar {{ $room->room_number }}</h3>
-                        
-                        @if($room->status == 'dirty')
-                            <span class="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs font-semibold animate-pulse">Perlu Dibersihkan</span>
-                        @elseif($room->status == 'cleaning')
-                            <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-semibold">Proses Pengerjaan</span>
-                        @endif
-                    </div>
-                    <p class="text-sm font-medium text-slate-700">{{ $room->roomType->type_name }}</p>
-                    <p class="text-xs text-slate-500 mt-1">Lantai {{ $room->floor }}</p>
-                </div>
-
-                <div class="mt-6 pt-4 border-t border-slate-100">
-                    @if($room->status == 'dirty')
-                        <form action="/hk/rooms/{{ $room->id }}/start" method="POST">
-                            @csrf
-                            <button type="submit" class="w-full bg-amber-500 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-amber-600 transition shadow-sm">
-                                Ambil Tugas & Bersihkan
-                            </button>
-                        </form>
-                    @elseif($room->status == 'cleaning')
-                        <form action="/hk/rooms/{{ $room->id }}/finish" method="POST">
-                            @csrf
-                            <button type="submit" class="w-full bg-blue-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition shadow-sm">
-                                Tandai Selesai (Tersedia)
-                            </button>
-                        </form>
-                    @endif
-                </div>
-            </div>
-            @empty
-            <div class="col-span-full bg-emerald-50 border border-emerald-200 text-emerald-700 p-8 rounded-xl text-center">
-                <div class="text-4xl mb-3">✨</div>
-                <p class="font-medium text-lg">Kerja Bagus!</p>
-                <p class="text-sm mt-1">Semua kamar sudah bersih dan siap disewakan.</p>
-            </div>
-            @endforelse
+        @if(session('success'))
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl mb-6 flex items-center shadow-sm text-sm font-medium">
+            <span class="mr-2">✨</span> {{ session('success') }}
         </div>
+        @endif
+
+        @if($rooms->isEmpty())
+            <div class="bg-white rounded-2xl border border-emerald-100 p-12 text-center shadow-sm max-w-2xl mx-auto mt-10">
+                <div class="text-5xl mb-4">✨</div>
+                <h3 class="text-xl font-bold text-slate-800 mb-1">Kerja Bagus!</h3>
+                <p class="text-slate-500 text-sm">Semua kamar sudah bersih, rapi, dan siap disewakan.</p>
+            </div>
+        @else
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-600 text-xs font-semibold uppercase border-b border-slate-200">
+                                <th class="p-4">Nomor Kamar</th>
+                                <th class="p-4">Tipe Kamar</th>
+                                <th class="p-4">Status Saat Ini</th>
+                                <th class="p-4 text-center">Aksi Kebersihan</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            @foreach($rooms as $room)
+                            <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition">
+                                <td class="p-4 font-bold text-slate-800">
+                                    Kamar No. {{ $room->room_number }} (Lantai {{ $room->floor }})
+                                </td>
+                                <td class="p-4 text-slate-600 font-medium">
+                                    {{ $room->roomType->type_name }}
+                                </td>
+                                <td class="p-4">
+                                    @if($room->status == 'dirty')
+                                        <span class="inline-block bg-red-50 text-red-600 px-2.5 py-1 rounded-md text-xs font-bold border border-red-100">🛑 Perlu Dibersihkan</span>
+                                    @elseif($room->status == 'cleaning')
+                                        <span class="inline-block bg-amber-50 text-amber-600 px-2.5 py-1 rounded-md text-xs font-bold border border-amber-100 animate-pulse">🧹 Sedang Dibersihkan</span>
+                                    @endif
+                                </td>
+                                <td class="p-4 text-center">
+                                    @if($room->status == 'dirty')
+                                        <form action="/hk/room-start/{{ $room->id }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="bg-amber-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-amber-700 transition shadow-sm">
+                                                Mulai Bersihkan
+                                            </button>
+                                        </form>
+                                    @elseif($room->status == 'cleaning')
+                                        <form action="/hk/room-finish/{{ $room->id }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-emerald-700 transition shadow-sm">
+                                                Tandai Selesai
+                                            </button>
+                                        </form>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
     </main>
 
 </body>

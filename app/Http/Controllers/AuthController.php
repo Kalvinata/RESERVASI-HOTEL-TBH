@@ -9,27 +9,57 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    // 1. Menampilkan Halaman Register
-    public function showRegister()
+    // 1. Menampilkan Halaman Login (INI YANG TADI SEMPAT HILANG)
+    public function showLogin()
     {
-        return view('auth.register'); // Sesuaikan dengan nama folder view register kamu
+        return view('auth.login'); 
     }
 
-    // 2. Memproses Data Register
-  // Memproses Data Login
+    // 2. Menampilkan Halaman Register
+    public function showRegister()
+    {
+        return view('auth.register'); 
+    }
+
+    // 3. Memproses Data Register
+    public function registerPost(Request $request)
+    {
+        // Validasi data yang diisi
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'phone' => 'required|string|max:15',
+            'password' => 'required|string|min:8|confirmed',
+        ], [
+            'password.min' => 'Password minimal harus 8 karakter!',
+            'password.confirmed' => 'Konfirmasi password tidak cocok!',
+            'email.unique' => 'Email ini sudah terdaftar!',
+            'phone.required' => 'Nomor WhatsApp wajib diisi!'
+        ]);
+
+        // Simpan ke database
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'password' => Hash::make($request->password), 
+            'role' => 'guest', // Otomatis menjadi akun tamu
+        ]);
+
+        return redirect('/login')->with('success', 'Registrasi berhasil! Silakan login.');
+    }
+
+    // 4. Memproses Data Login
     public function loginPost(Request $request)
     {
-        // 1. Validasi input
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
-        // 2. Coba cocokkan email dan password dengan database
         if (Auth::attempt($credentials)) {
-            $request->session()->regenerate(); // Keamanan session
+            $request->session()->regenerate();
 
-            // 3. Cek Role (Hak Akses) dan arahkan ke dashboard masing-masing
             $role = Auth::user()->role;
             
             if ($role === 'admin') {
@@ -39,18 +69,16 @@ class AuthController extends Controller
             } elseif ($role === 'housekeeping') {
                 return redirect()->intended('/hk/dashboard');
             } else {
-                // Default untuk guest/tamu
                 return redirect()->intended('/guest');
             }
         }
 
-        // 4. Jika gagal login, kembalikan ke halaman login bawa pesan error
         return back()->withErrors([
             'email' => 'Email atau password yang Anda masukkan salah.',
-        ])->onlyInput('email'); // Biarkan email tetap terisi
+        ])->onlyInput('email'); 
     }
 
-    // Fungsi untuk Logout
+    // 5. Fungsi untuk Logout
     public function logout(Request $request)
     {
         Auth::logout();
