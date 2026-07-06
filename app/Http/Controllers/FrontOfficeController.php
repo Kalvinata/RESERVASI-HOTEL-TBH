@@ -4,62 +4,105 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Reservation;
-use App\Models\Room; // Ini baris yang ditambahkan agar tidak error
+use App\Models\Room;
+use Carbon\Carbon;
 
 class FrontOfficeController extends Controller
 {
+    // ==========================================
+    // 1. HALAMAN DASHBOARD UTAMA
+    // ==========================================
     public function index()
     {
-        // Ambil semua reservasi, urutkan dari yang paling baru
-        // Tarik juga relasi kamar dan pembayarannya
-        $reservations = Reservation::with(['room.roomType', 'payment'])->orderBy('created_at', 'desc')->get();
-        
+        $reservations = Reservation::with(['user', 'room.roomType', 'payment'])
+            // REVISI: Sembunyikan tamu yang sudah check-out dari dasbor utama
+            ->where('status', '!=', 'checked_out')
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
         return view('front_office.dashboard', compact('reservations'));
     }
 
+    // ==========================================
+    // 2. VERIFIKASI PEMBAYARAN
+    // ==========================================
     public function verify($id)
     {
-        // 1. Ambil data reservasi beserta pembayarannya
-        $reservation = Reservation::with('payment')->findOrFail($id);
-
-        // 2. Update status reservasi jadi confirmed
-        $reservation->update(['status' => 'confirmed']);
-
-        // 3. Update status pembayaran jadi paid
-        $reservation->payment->update(['status' => 'paid']);
-
-        // 4. Kembali ke dashboard dengan pesan sukses
-        return redirect('/fo/dashboard')->with('success', 'Reservasi berhasil diverifikasi!');
+        $reservation = Reservation::findOrFail($id);
+        if ($reservation->payment) {
+            $reservation->payment->update(['status' => 'paid']);
+        }
+        return back()->with('success', 'Pembayaran berhasil diverifikasi.');
     }
 
+    // ==========================================
+    // 3. PROSES CHECK-IN
+    // ==========================================
     public function checkIn($id)
     {
-        // Temukan reservasi
         $reservation = Reservation::findOrFail($id);
-        
-        // Ubah status kamar menjadi 'occupied'
-        $reservation->room->update(['status' => 'occupied']);
-        
-        // Opsional: Ubah status reservasi agar tidak bisa diverifikasi lagi
         $reservation->update(['status' => 'checked_in']);
-
-        return redirect('/fo/dashboard')->with('success', 'Tamu berhasil Check-in!');
+        
+        if ($reservation->room) {
+            $reservation->room->update(['status' => 'occupied']);
+        }
+        return back()->with('success', 'Tamu berhasil Check-in.');
     }
 
-    // Fungsi untuk menampilkan halaman Status Kamar
-    public function rooms()
-    {
-        // Ambil semua data kamar urut berdasarkan nomor kamar
-        $rooms = Room::with('roomType')->orderBy('room_number', 'asc')->get();
-        return view('front_office.rooms', compact('rooms'));
-    }
-
-    // Fungsi untuk proses Check-out (Mengubah status kamar jadi kotor)
+    // ==========================================
+    // 4. PROSES CHECK-OUT
+    // ==========================================
     public function checkoutRoom($id)
     {
-        $room = Room::findOrFail($id);
-        $room->update(['status' => 'dirty']);
+        $reservation = Reservation::findOrFail($id);
         
-        return back()->with('success', 'Kamar berhasil di-checkout dan sekarang berstatus kotor.');
+        $reservation->update(['status' => 'checked_out']);
+        
+        if ($reservation->room) {
+            $reservation->room->update(['status' => 'dirty']);
+        }
+        
+        return back()->with('success', 'Tamu berhasil Check-out. Info telah dikirim ke Housekeeping.');
+    }
+
+    // ==========================================
+    // 5. HALAMAN: TAMU SEDANG MENGINAP
+    // ==========================================
+    public function inhouse(Request $request)
+    {
+        $query = Reservation::with(['user', 'room.roomType', 'payment'])
+                    ->where('status', 'checked_in');
+
+        if ($request->filled('tanggal')) {
+            $query->whereDate('check_in_date', $request->input('tanggal'));
+        }
+
+        $reservations = $query->orderBy('check_in_date', 'asc')->get();
+        return view('front_office.inhouse', compact('reservations'));
+    }
+
+    // ==========================================
+    // 6. HALAMAN: RIWAYAT CHECK-OUT
+    // ==========================================
+    public function history(Request $request)
+    {
+        $query = Reservation::with(['user', 'room.roomType', 'payment'])
+                    ->where('status', 'checked_out');
+
+        if ($request->filled('tanggal')) {
+            $query->whereDate('check_out_date', $request->input('tanggal'));
+        }
+
+        $reservations = $query->orderBy('updated_at', 'desc')->get();
+        return view('front_office.history', compact('reservations'));
+    }
+
+    // ==========================================
+    // 7. HALAMAN: STATUS KAMAR
+    // ==========================================
+    public function rooms()
+    {
+        $rooms = Room::with('roomType')->get();
+        return view('front_office.rooms', compact('rooms'));
     }
 }

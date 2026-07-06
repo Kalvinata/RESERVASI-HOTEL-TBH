@@ -10,13 +10,48 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        $password = Hash::make('password123');
+        // 1. Akun Admin (Manajer)
+        User::updateOrCreate(
+            ['email' => 'admin@hotel.com'], // Patokan agar tidak ganda
+            [
+                'name' => 'Bapak Manajer',
+                'phone' => '08111111111',
+                'password' => Hash::make('12345678'),
+                'role' => 'admin',
+            ]
+        );
 
-        User::insert([
-            ['name' => 'Administrator', 'email' => 'admin@beachhouse.com', 'phone' => '081111111', 'password' => $password, 'role' => 'admin'],
-            ['name' => 'Resepsionis FO', 'email' => 'fo@beachhouse.com', 'phone' => '082222222', 'password' => $password, 'role' => 'front_office'],
-            ['name' => 'Staf Kebersihan', 'email' => 'hk@beachhouse.com', 'phone' => '083333333', 'password' => $password, 'role' => 'housekeeping'],
-            ['name' => 'Tamu Contoh', 'email' => 'tamu@gmail.com', 'phone' => '084444444', 'password' => $password, 'role' => 'guest'],
-        ]);
+        // 2. Akun Front Office (Resepsionis)
+        User::updateOrCreate(
+            ['email' => 'fo@hotel.com'],
+            [
+                'name' => 'Mbak Resepsionis',
+                'phone' => '08222222222',
+                'password' => Hash::make('12345678'),
+                'role' => 'front_office',
+            ]
+        );
+
+        // 3. Akun Housekeeping (Kebersihan)
+        User::updateOrCreate(
+            ['email' => 'hk@hotel.com'],
+            [
+                'name' => 'Mas Cleaning',
+                'phone' => '08333333333',
+                'password' => Hash::make('12345678'),
+                'role' => 'housekeeping',
+            ]
+        );
+
+        // 4. Akun Guest (Tamu)
+        User::updateOrCreate(
+            ['email' => 'tamu@hotel.com'],
+            [
+                'name' => 'Bapak Tamu',
+                'phone' => '08444444444',
+                'password' => Hash::make('12345678'),
+                'role' => 'guest',
+            ]
+        );
     }
 }
