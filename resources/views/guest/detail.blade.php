@@ -71,7 +71,11 @@
                 
                 <div>
                     <div class="rounded-2xl overflow-hidden shadow-lg h-[400px]">
-                        <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" alt="Detail Kamar">
+                        @if($room->roomType->image)
+                            <img src="{{ asset('storage/' . $room->roomType->image) }}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" alt="{{ $room->roomType->type_name }}">
+                        @else
+                            <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" alt="Detail Kamar">
+                        @endif
                     </div>
                     
                     <div class="grid grid-cols-3 gap-4 mt-6">
@@ -99,7 +103,7 @@
                         
                         <div class="prose prose-slate prose-sm text-slate-600 mb-8 leading-relaxed">
                             <p>
-                                Nikmati kenyamanan istirahat Anda di {{ $room->roomType->type_name }}. Kamar ini didesain khusus untuk memberikan pengalaman menginap yang tenang dan mewah selama Anda berada di Gili Trawangan. Dilengkapi dengan perabotan modern dan sentuhan tropis yang khas.
+                                {{ $room->roomType->description ?? 'Deskripsi tidak tersedia untuk kamar ini.' }}
                             </p>
                         </div>
 
