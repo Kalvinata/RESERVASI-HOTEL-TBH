@@ -88,32 +88,38 @@
                             </div>
                         </td>
                         <td class="px-6 py-5 border-y border-slate-100 text-center">
-                            @if($res->status == 'pending')
-                                <span class="inline-flex items-center bg-amber-50 text-amber-600 px-3 py-1.5 rounded-md text-xs font-bold border border-amber-200">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-2 animate-pulse"></span> Menunggu Bayar
-                                </span>
-                            @elseif($res->status == 'confirmed')
-                                <span class="inline-flex items-center bg-blue-50 text-blue-600 px-3 py-1.5 rounded-md text-xs font-bold border border-blue-200">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></span> Dikonfirmasi
+                            
+                            <!-- REVISI LOGIKA STATUS: Sekarang mengecek status reservasi dan status pembayaran -->
+                            @if($res->status == 'checked_out')
+                                <span class="inline-flex items-center bg-slate-100 text-slate-500 px-3 py-1.5 rounded-md text-xs font-bold border border-slate-200">
+                                    <span class="mr-1">✓</span> Selesai
                                 </span>
                             @elseif($res->status == 'checked_in')
                                 <span class="inline-flex items-center bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-md text-xs font-bold border border-emerald-200">
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span> Sedang Menginap
                                 </span>
-                            @elseif($res->status == 'checked_out')
-                                <span class="inline-flex items-center bg-slate-100 text-slate-500 px-3 py-1.5 rounded-md text-xs font-bold border border-slate-200">
-                                    <span class="mr-1">✓</span> Selesai
+                            @elseif($res->status == 'confirmed' || optional($res->payment)->status == 'paid')
+                                <span class="inline-flex items-center bg-blue-50 text-blue-600 px-3 py-1.5 rounded-md text-xs font-bold border border-blue-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></span> Lunas (Menunggu Check-in)
+                                </span>
+                            @else
+                                <span class="inline-flex items-center bg-amber-50 text-amber-600 px-3 py-1.5 rounded-md text-xs font-bold border border-amber-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-2 animate-pulse"></span> Menunggu Bayar
                                 </span>
                             @endif
+
                         </td>
                         <td class="px-6 py-5 border-y border-r border-slate-100 rounded-r-xl text-right">
-                            @if($res->status == 'pending')
+                            
+                            <!-- REVISI LOGIKA TOMBOL: Tombol tagihan hanya muncul jika pembayaran belum LUNAS -->
+                            @if($res->status == 'pending' && optional($res->payment)->status != 'paid')
                                 <a href="/guest/payment/{{ $res->id }}" class="inline-block bg-slate-800 hover:bg-slate-900 text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-colors shadow-sm">
                                     Lihat Tagihan ➔
                                 </a>
                             @else
                                 <span class="text-xs text-slate-400 font-medium italic">-</span>
                             @endif
+
                         </td>
                     </tr>
                     @endforeach

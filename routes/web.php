@@ -41,6 +41,27 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/rooms', [AdminController::class, 'storeRoom']);
         Route::get('/admin/users', [AdminController::class, 'users']);
         Route::post('/admin/users', [AdminController::class, 'storeUser']);
+        // Kelola Tipe Kamar
+    Route::get('/admin/room-types', [AdminController::class, 'roomTypes']);
+    Route::post('/admin/room-types', [AdminController::class, 'storeRoomType']);
+    
+    // --- TAMBAHKAN 3 BARIS INI UNTUK EDIT & HAPUS ---
+    Route::get('/admin/room-types/{id}/edit', [AdminController::class, 'editRoomType']);
+    Route::put('/admin/room-types/{id}', [AdminController::class, 'updateRoomType']);
+    Route::delete('/admin/room-types/{id}', [AdminController::class, 'destroyRoomType']);
+    Route::get('/admin/room-types/{id}/edit', [AdminController::class, 'editRoomType']);
+    Route::put('/admin/room-types/{id}', [AdminController::class, 'updateRoomType']);
+    Route::delete('/admin/room-types/{id}', [AdminController::class, 'destroyRoomType']);
+    Route::get('/admin/rooms/{id}/edit', [AdminController::class, 'editRoom']);
+    Route::put('/admin/rooms/{id}', [AdminController::class, 'updateRoom']);
+    Route::delete('/admin/rooms/{id}', [AdminController::class, 'destroyRoom']);
+    Route::get('/admin/users', [AdminController::class, 'users']);
+        Route::post('/admin/users', [AdminController::class, 'storeUser']);
+        
+        // --- TAMBAHKAN 3 BARIS INI UNTUK EDIT & HAPUS PENGGUNA ---
+        Route::get('/admin/users/{id}/edit', [AdminController::class, 'editUser']);
+        Route::put('/admin/users/{id}', [AdminController::class, 'updateUser']);
+        Route::delete('/admin/users/{id}', [AdminController::class, 'destroyUser']);
     });
 
     // ------------------------------------------
@@ -86,5 +107,18 @@ Route::middleware(['auth'])->group(function () {
         
         Route::get('/guest/history', [GuestController::class, 'history']);
     });
+// ------------------------------------------
+// C. AREA KERJA HOUSEKEEPING (HK)
+// ------------------------------------------
+Route::middleware(['role:housekeeping'])->group(function () {
+    // Halaman Utama Dashboard HK
+    Route::get('/hk/dashboard', [HousekeepingController::class, 'index']);
+    
+    // Langkah 1: Mengubah status Kamar dari Kotor (dirty) -> Sedang Dibersihkan (cleaning)
+    Route::post('/hk/room/{id}/start', [HousekeepingController::class, 'startCleaning']);
+    
+    // Langkah 2: Mengubah status Kamar dari Sedang Dibersihkan (cleaning) -> Tersedia/Siap (available)
+    Route::post('/hk/room/{id}/finish', [HousekeepingController::class, 'finishCleaning']);
+});
 
 });

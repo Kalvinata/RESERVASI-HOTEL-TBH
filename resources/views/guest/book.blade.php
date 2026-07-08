@@ -102,28 +102,25 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                             <label class="block text-sm font-medium text-slate-600 mb-1">Tanggal Check-in</label>
-                            <input type="date" name="check_in_date" id="check_in_date" min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-slate-800 focus:outline-none transition-all" required>
+                            <input type="date" name="check_in_date" id="check_in_date" min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50" required>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-600 mb-1">Tanggal Check-out</label>
-                            <input type="date" name="check_out_date" id="check_out_date" class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-slate-800 focus:outline-none transition-all disabled:bg-slate-100 disabled:cursor-not-allowed" required disabled title="Pilih tanggal Check-in terlebih dahulu">
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Tanggal Check-out</label>
+                            <input type="date" name="check_out_date" id="check_out_date" class="w-full text-sm px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50" required disabled>
                         </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-slate-600 mb-1">Catatan Tambahan (Opsional)</label>
-                        <textarea name="notes" rows="3" class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-slate-800 focus:outline-none transition-all" placeholder="Misal: Mohon siapkan ekstra bantal..."></textarea>
                     </div>
 
                     <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 mt-6 flex justify-between items-center shadow-sm">
                         <div>
-                            <p class="text-sm text-slate-600 font-medium mb-1">Total Pembayaran Estimasi</p>
-                            <p class="text-xs text-slate-500 font-medium bg-slate-200 inline-block px-2 py-0.5 rounded" id="malam_display">Pilih tanggal dahulu</p>
+                            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Total Biaya</p>
+                            <div class="flex items-end gap-2">
+                                <span class="text-2xl font-bold text-emerald-600" id="total_price_display">Rp 0</span>
+                                <span class="text-sm font-medium text-slate-400 mb-1" id="malam_display"></span>
+                            </div>
                         </div>
-                        <p class="text-3xl font-bold text-slate-800" id="total_price_display">-</p>
                     </div>
 
-                    <button type="submit" id="btn_submit" class="w-full bg-slate-800 text-white font-semibold py-4 rounded-xl hover:bg-slate-900 transition-colors mt-6 shadow-md hover:shadow-lg">
+                    <button type="submit" id="btn_submit" class="w-full bg-slate-800 text-white font-semibold py-4 rounded-xl hover:bg-slate-900 transition-colors mt-6 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                         Lanjut ke Pembayaran
                     </button>
                 </form>
@@ -136,6 +133,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const checkInInput = document.getElementById('check_in_date');
             const checkOutInput = document.getElementById('check_out_date');
+            const submitBtn = document.getElementById('btn_submit');
             
             const totalDisplay = document.getElementById('total_price_display');
             const malamDisplay = document.getElementById('malam_display');
@@ -159,13 +157,21 @@
                         const total = diffDays * pricePerNight;
                         
                         totalDisplay.textContent = 'Rp ' + total.toLocaleString('id-ID');
-                        malamDisplay.textContent = diffDays + ' Malam menginap';
+                        malamDisplay.textContent = '(' + diffDays + ' Malam)';
                         hiddenTotal.value = total;
+                        
+                        submitBtn.disabled = false; // Aktifkan tombol jika valid
                     } else {
                         totalDisplay.textContent = 'Tidak Valid';
-                        malamDisplay.textContent = 'Check-out salah';
+                        malamDisplay.textContent = '';
                         hiddenTotal.value = '';
+                        submitBtn.disabled = true;
                     }
+                } else {
+                    totalDisplay.textContent = 'Rp 0';
+                    malamDisplay.textContent = '';
+                    hiddenTotal.value = '';
+                    submitBtn.disabled = true;
                 }
             }
 
@@ -181,11 +187,13 @@
                     
                     if(checkOutInput.value && checkOutInput.value <= this.value) {
                         checkOutInput.value = '';
-                        totalDisplay.textContent = '-';
-                        malamDisplay.textContent = 'Pilih ulang Check-out';
+                        totalDisplay.textContent = 'Rp 0';
+                        malamDisplay.textContent = '';
+                        submitBtn.disabled = true;
                     }
                 } else {
                     checkOutInput.disabled = true;
+                    checkOutInput.value = '';
                 }
                 calculateTotal();
             });

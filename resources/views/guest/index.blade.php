@@ -14,29 +14,24 @@
 <body class="bg-slate-50 flex h-screen overflow-hidden">
 
    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex z-10 shadow-sm flex-shrink-0">
-        
         <div>
             <div class="h-20 flex items-center px-6 border-b border-slate-100 bg-slate-800">
                 <h1 class="text-2xl font-serif text-white font-bold">The Beach House</h1>
             </div>
 
             <nav class="p-4 space-y-3 mt-2">
-                
                 <a href="/guest" class="flex items-center px-4 py-3 rounded-xl transition-all font-medium border {{ request()->is('guest') ? 'bg-slate-100 text-slate-800 border-slate-200 shadow-sm' : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-800' }}">
                     <span class="mr-3 text-lg">🛏️</span>
                     <span class="text-sm">Pesan Kamar</span>
                 </a>
-                
                 <a href="/guest/profile" class="flex items-center px-4 py-3 rounded-xl transition-all font-medium border {{ request()->is('guest/profile') ? 'bg-slate-100 text-slate-800 border-slate-200 shadow-sm' : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-800' }}">
                     <span class="mr-3 text-lg">👤</span>
                     <span class="text-sm">Profil Saya</span>
                 </a>
-                
                 <a href="/guest/history" class="flex items-center px-4 py-3 rounded-xl transition-all font-medium border {{ request()->is('guest/history') ? 'bg-slate-100 text-slate-800 border-slate-200 shadow-sm' : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-800' }}">
                     <span class="mr-3 text-lg">📜</span>
                     <span class="text-sm">Riwayat Pemesanan</span>
                 </a>
-
             </nav>
         </div>
 
@@ -60,9 +55,7 @@
         </div>
     </aside>
 
-
     <main class="flex-1 overflow-y-auto bg-slate-50">
-        
         <div class="bg-slate-800 text-white py-16 px-8 text-center relative overflow-hidden">
             <div class="relative z-10">
                 <h2 class="text-3xl font-serif mb-3">Temukan Kenyamanan Anda</h2>
@@ -81,14 +74,19 @@
                 <div class="bg-white rounded-xl shadow-sm border border-slate-100 hover:shadow-lg overflow-hidden flex flex-col md:flex-row transition-all duration-300 group">
                     
                     <a href="/guest/room/{{ $room->id }}" class="md:w-2/5 h-56 md:h-auto overflow-hidden relative bg-slate-200 block cursor-pointer group-hover:shadow-inner">
-                         <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Room Image">
-    
-                                     <div class="absolute inset-0 bg-slate-900 bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
-                         <span class="bg-white text-slate-800 text-sm font-bold px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
-                     Lihat Detail
-                 </span>
-                 </div>
-                </a>
+                        
+                        @if($room->roomType->image)
+                            <img src="{{ asset('storage/' . $room->roomType->image) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="{{ $room->roomType->type_name }}">
+                        @else
+                            <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Default Room">
+                        @endif
+                        
+                        <div class="absolute inset-0 bg-slate-900 bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+                            <span class="bg-white text-slate-800 text-sm font-bold px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
+                                Lihat Detail
+                            </span>
+                        </div>
+                    </a>
                     
                     <div class="p-6 md:w-3/5 flex flex-col justify-between">
                         <div>
@@ -124,6 +122,5 @@
             </div>
         </div>
     </main>
-
 </body>
 </html>
